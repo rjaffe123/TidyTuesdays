@@ -1,0 +1,60 @@
+---
+title: "Cocktails"
+subtitle: "Tidy Tuesday 5/26"
+author: "Rachael Jaffe"
+institute: "University of Toronto"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "hygge", "chocolate-fonts"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# Getting the data
+
+### Setting up libraries
+```{r, message=FALSE}
+library("tidyverse")
+```
+--
+### Loading data
+```{r, message=FALSE, cache=TRUE}
+tuesdata <- tidytuesdayR::tt_load('2020-05-26')
+cocktails <-tuesdata$cocktails
+rm(tuesdata)
+```
+
+---
+background-image: url("https://images.app.goo.gl/TY8PxHxFVyJiuRh68")
+background-size: cover
+class: center, bottom, inverse
+
+# Cocktails!
+
+---
+
+# Explore data
+
+Which drink in this database has the most ingredients?
+```{r, echo=FALSE}
+cocktails %>% group_by(drink) %>%
+  count() %>%
+  arrange(desc(n)) %>%
+  DT::datatable(fillContainer = FALSE, options = list(pageLength = 8))
+```
+---
+## What's in an Angelica Liqour?
+
+```{r}
+angelica_liqueur <- cocktails %>% filter(drink == "Angelica Liqueur") %>% select(ingredient_number, ingredient)
+
+```
+
+
+
+
+
