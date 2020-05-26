@@ -14,3 +14,6 @@ output:
       countIncrementalSlides: false
 ---
 
+#first slide
+
+page::chrome_print("cocktails.html")
