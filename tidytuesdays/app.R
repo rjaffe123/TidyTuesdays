@@ -67,7 +67,7 @@ kids <- kids %>% mutate(state = case_when(
   state == "wisconsin" ~ "WI",
   state == "wyoming" ~ "WY",
 ))
-
+## SEPT 25
 members <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/members.csv')
 expeditions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/expeditions.csv')
 peaks <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/peaks.csv')
