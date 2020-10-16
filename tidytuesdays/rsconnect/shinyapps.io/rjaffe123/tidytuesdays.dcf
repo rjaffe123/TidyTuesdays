@@ -1,0 +1,12 @@
+name: tidytuesdays
+title: tidytuesdays
+username:
+account: rjaffe123
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2839189
+bundleId: 3643432
+url: https://rjaffe123.shinyapps.io/tidytuesdays/
+when: 1600430239.41454
+asMultiple: FALSE
+asStatic: FALSE
