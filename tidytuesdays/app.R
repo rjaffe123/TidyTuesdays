@@ -9,6 +9,9 @@ library(maps)
 library(plotly)
 library(DT)
 library(giphyr)
+library(wordcloud)
+library(mapproj)
+library(viridis)
 
 ## SEPT15
 
@@ -71,6 +74,14 @@ kids <- kids %>% mutate(state = case_when(
 members <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/members.csv')
 expeditions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/expeditions.csv')
 peaks <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/peaks.csv')
+
+members_2 <- members %>% select(citizenship, expedition_role)
+members_2 <- members_2 %>% group_by(expedition_role, citizenship) %>% mutate(number = n()) %>% distinct(citizenship, .keep_all = TRUE) %>% rename(country.etc = citizenship)
+data_cities <- world.cities %>% filter(capital == 1)
+members_2 <- members_2 %>% right_join(data_cities, by = 'country.etc')
+world <- map_data("world")
+
+
 
 # Define UI for application that draws a histogram
 
@@ -142,8 +153,22 @@ ui <- fluidPage(theme = "united",
                       ),
              tabPanel("Sept 22", fluid = TRUE,icon = icon("mountain"),
                       h3("Himalayan Climbing Expeditions"),
-                      p("This week's data is a compliation of records for all expeditions that have climbed in the Nepal Himalaya. We have data from 1905 to Spring 2019 that covers expeditions from 465 peaks in Nepal")
+                      p("This week's data is a compliation of records for all expeditions that have climbed in the Nepal Himalaya. We have data from 1905 to Spring 2019 that covers expeditions from 465 peaks in Nepal"),
+                      br(),
+                      p("Let's visualize where the people on the expeditions come from."),
+                      fluidRow(
+                        box(title = "Choose expedition role:", 
+                            selectInput('expedition', label = "Expedition Role", choices = c(
+                              unique(members_2$expedition_role))
+                            ))
+                      ),
+                      br(),
+                      plotlyOutput("worldclimbers"),
+                      br(),
+                      p("Let's explore what factors are associated with a successful expedition."),
+                      p("We will regress success or failure based on year, season, number of members in the expedition, and height of the peak. We will control for the different peaks so that we can compare between expeditions without bias.")
                       )
+             
                       
 )
 )
@@ -158,6 +183,17 @@ server <- function(input, output) {
       plot_ly(type = "choropleth", locations=kids[kids$year == input$year & kids$variable == input$variable,]$state, locationmode = "USA-states", 
               z=~kids[kids$year == input$year & kids$variable == input$variable,]$inf_adj) 
                                       %>% layout(geo=list(scope='usa'))%>% colorbar(title = "Spending")
+  )
+  output$worldclimbers <- renderPlotly(
+    ggplotly( members_2 %>% filter(expedition_role == input$expedition) %>%
+                arrange(desc(number)) %>% 
+                mutate(name=factor(name, unique(name))) %>% 
+                ggplot() +
+                geom_polygon(data = world, aes(x=long, y = lat, group = group), fill="grey", alpha=0.3) +
+                geom_point( aes(x=long, y=lat, size=number, color=number, text=paste0("Country: ", country.etc, "\n", "Number of people: ", number), alpha=pop), alpha=0.9) +
+                scale_size_continuous(range=c(1,12)) +
+                scale_color_viridis(trans="log") +
+                theme_void() + coord_map() + theme(legend.position="none"), tooltip="text")
   )
 }
 
